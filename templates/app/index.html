@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %} 
+
+{% block title %}Новые вопросы - AskPupkin{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Вопросы</h2>
+        <a href="{% url 'ask' %}" class="btn btn-primary">Задать вопрос</a>
+    </div>
+
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link active fw-bold" href="{% url 'index' %}">Новые</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-secondary" href="{% url 'hot' %}">Популярные</a>
+        </li>
+    </ul>
+
+    {% for question in questions %}
+    <div class="card mb-3 shadow-sm">
+        <div class="d-flex flex-row">
+            <div class="text-center p-3 border-end bg-light rounded-start d-flex align-items-start justify-content-center" style="width: 75px; min-width: 75px;">
+                <div class="like-container d-flex flex-column align-items-center">
+                    <button type="button"
+                            class="btn btn-sm p-1 vote-btn {% if question.user_vote == 1 %}btn-primary active{% else %}btn-outline-primary{% endif %}"
+                            data-id="{{ question.id }}"
+                            data-type="like"
+                            style="line-height: 1; width: 32px;">
+                        ▲
+                    </button>
+
+                    <div class="fs-5 my-1 fw-bold" id="rating-{{ question.id }}">{{ question.rating }}</div>
+
+                    <button type="button"
+                            class="btn btn-sm p-1 vote-btn {% if question.user_vote == -1 %}btn-danger active{% else %}btn-outline-danger{% endif %}"
+                            data-id="{{ question.id }}"
+                            data-type="dislike"
+                            style="line-height: 1; width: 32px;">
+                        ▼
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-grow-1">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">
+                        <a href="{% url 'question' question.id %}" class="text-decoration-none">{{ question.title }}</a>
+                    </h5>
+
+                    <p class="card-text text-secondary mt-2">{{ question.text|truncatewords:30 }}</p>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                        <div>
+                            {% for tag in question.tags.all %}
+                            <a href="{% url 'tag' tag.name %}" class="badge bg-secondary text-decoration-none me-1">{{ tag.name }}</a>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-flex align-items-center">
+                            {% if question.author.profile.avatar and "default.png" not in question.author.profile.avatar.url %}
+                                <img src="{{ question.author.profile.avatar.url }}" alt="avatar" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                            {% else %}
+                                <img src="{% static 'img/default-avatar.png' %}" alt="avatar" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                            {% endif %}
+                            <small class="text-muted">Автор: <strong>{{ question.author.username }}</strong></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+        <div class="alert alert-info">Вопросов пока нет. Будьте первым, кто создаст тему!</div>
+    {% endfor %}
+
+    {% include 'includes/pagination.html' with page_obj=questions %}
+{% endblock %}

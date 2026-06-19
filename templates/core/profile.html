@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Настройки профиля - AskPupkin{% endblock %}
+
+{% block content %}
+<div class="container mt-2">
+    <h2 class="mb-4">Настройки профиля</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success shadow-sm mb-4" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="card p-4 shadow-sm bg-light">
+        {% csrf_token %}
+
+        <div class="row">
+            <div class="col-md-4 text-center border-end">
+                <div class="mb-3">
+                    {% if user.profile.avatar and "default.png" not in user.profile.avatar.url %}
+                        <img src="{{ user.profile.avatar.url }}" alt="avatar" class="img-thumbnail shadow-sm rounded-circle" style="width: 180px; height: 180px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'img/default-avatar.png' %}" alt="avatar" class="img-thumbnail shadow-sm rounded-circle" style="width: 180px; height: 180px; object-fit: cover;">
+                    {% endif %}
+                </div>
+
+                {{ profile_form.avatar }}
+
+                <button type="button" class="btn btn-sm btn-outline-secondary px-3" onclick="document.getElementById('avatar-input').click();">
+                    Изменить фото
+                </button>
+                <div id="file-chosen" class="small text-muted mt-2"></div>
+            </div>
+
+            <div class="col-md-8 ps-4">
+                <h4 class="mb-3 text-secondary">Личные данные</h4>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">{{ user_form.username.label }}</label>
+                    {{ user_form.username }}
+                    {% if user_form.username.errors %}
+                        <div class="text-danger small mt-1">{{ user_form.username.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">{{ user_form.email.label }}</label>
+                    {{ user_form.email }}
+                    {% if user_form.email.errors %}
+                        <div class="text-danger small mt-1">{{ user_form.email.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <hr class="my-4">
+
+                <button type="submit" class="btn btn-success px-5 fw-bold">Сохранить изменения</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('avatar-input').addEventListener('change', function(){
+        const filename = this.files[0] ? this.files[0].name : "";
+        document.getElementById('file-chosen').textContent = "Выбран файл: " + filename;
+    });
+</script>
+{% endblock %}

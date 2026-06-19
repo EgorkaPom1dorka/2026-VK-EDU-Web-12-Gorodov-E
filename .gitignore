@@ -1,0 +1,22 @@
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Django
+db.sqlite3
+*.sqlite3
+media/
+uploads/
+static/
+
+# OS / IDE
+.idea/
+.vscode/s
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.docker

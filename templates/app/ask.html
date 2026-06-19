@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Новый вопрос - AskPupkin{% endblock %}
+
+{% block content %}
+<div class="container mt-2">
+    <div class="card p-4 shadow-sm bg-light">
+        <h2 class="mb-4 fw-bold text-dark">Задать новый вопрос</h2>
+
+        <form method="post" id="ask-form">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Заголовок вопроса</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Суть проблемы</label>
+                {{ form.text }}
+                {% if form.text.errors %}
+                    <div class="text-danger small mt-1">{{ form.text.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold">Теги</label>
+
+                <div class="form-control d-flex flex-wrap align-items-center p-2" id="tags-container" style="cursor: text; min-height: 48px;">
+                    <div id="tags-list" class="d-flex flex-wrap align-items-center"></div>
+                    <input type="text" id="visual-tags-input" class="border-0 flex-grow-1 p-1" style="outline: none; min-width: 120px;" placeholder="Начните писать тег...">
+                </div>
+
+                <small class="text-muted">{{ form.tags.help_text }}</small>
+
+                {{ form.tags }}
+
+                {% if form.tags.errors %}
+                    <div class="text-danger small mt-1">{{ form.tags.errors }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary px-5 fw-bold">Опубликовать вопрос</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const tagsContainer = document.getElementById('tags-container');
+    const visualInput = document.getElementById('visual-tags-input');
+    const tagsList = document.getElementById('tags-list');
+    const realInput = document.getElementById('real-tags-input');
+
+    let tagsArray = [];
+
+    tagsContainer.addEventListener('click', () => visualInput.focus());
+
+    function updateTags() {
+        tagsList.innerHTML = '';
+        tagsArray.forEach((tag, index) => {
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-primary m-1 p-2 d-flex align-items-center fs-6';
+            badge.innerHTML = `${tag} <span class="ms-2 text-white-50 fw-bold" style="cursor:pointer; font-size: 1.1em;" onclick="removeTag(${index}); event.stopPropagation();">&times;</span>`;
+            tagsList.appendChild(badge);
+        });
+        realInput.value = tagsArray.join(' ');
+    }
+
+    function addTag(value) {
+        const cleanTag = value.replace(/[^a-zA-Z0-9а-яА-ЯёЁ_-]/g, '').toLowerCase().trim();
+
+        if (cleanTag && !tagsArray.includes(cleanTag) && tagsArray.length < 5) {
+            tagsArray.push(cleanTag);
+            updateTags();
+        }
+        visualInput.value = '';
+    }
+
+    window.removeTag = function(index) {
+        tagsArray.splice(index, 1);
+        updateTags();
+    }
+
+    visualInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
+            e.preventDefault();
+            addTag(this.value);
+        } else if (e.key === 'Backspace' && this.value === '' && tagsArray.length > 0) {
+            tagsArray.pop();
+            updateTags();
+        }
+    });
+
+    visualInput.addEventListener('blur', function() {
+        addTag(this.value);
+    });
+</script>
+{% endblock %}

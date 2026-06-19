@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AskPupkin{% endblock %}</title>
+    <link class="favicon" rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'index' %}">AskPupkin</a>
+
+            <form class="d-flex mx-auto w-50">
+                <input class="form-control me-2" type="search" placeholder="Поиск по сайту..." aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Найти</button>
+            </form>
+
+            <div class="navbar-nav align-items-center">
+                {% if user.is_authenticated %}
+                    {% if user.profile.avatar and "default.png" not in user.profile.avatar.url %}
+                        <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover; border: 1px solid rgba(255,255,255,0.2);">
+                    {% else %}
+                        <img src="{% static 'img/default-avatar.png' %}" alt="Avatar" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover; border: 1px solid rgba(255,255,255,0.2);">
+                    {% endif %}
+
+                    <span class="nav-link text-light me-2">Привет, <strong>{{ user.username }}</strong>!</span>
+                    <a class="nav-link" href="{% url 'profile' %}">Профиль</a>
+                    <a class="nav-link text-danger-hover" href="{% url 'logout' %}">Выход</a>
+                {% else %}
+                    <a class="nav-link" href="{% url 'login' %}">Войти</a>
+                    <a class="nav-link" href="{% url 'signup' %}">Регистрация</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9">
+                {% block content %}
+                {% endblock %}
+            </div>
+
+            <div class="col-md-3">
+<div class="card mb-4 shadow-sm">
+        <div class="card-header fw-bold bg-dark text-white">Популярные теги</div>
+        <div class="card-body">
+            {% for tag in popular_tags %}
+                <a href="{% url 'tag' tag.name %}" class="badge bg-primary m-1 p-2 text-decoration-none transition-hover">
+                    {{ tag.name }} <span class="badge bg-light text-dark ms-1 small" style="font-size: 0.75em;">{{ tag.questions_count }}</span>
+                </a>
+            {% empty %}
+                <span class="text-muted small">Тегов пока нет</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card mb-3 shadow-sm">
+        <div class="card-header fw-bold bg-dark text-white">Лучшие пользователи</div>
+            <ul class="list-group list-group-flush">
+                {% for user in best_users %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                        <div class="d-flex align-items-center">
+                            {% if user.profile.avatar and "default.png" not in user.profile.avatar.url %}
+                                <img src="{{ user.profile.avatar.url }}" alt="avatar" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                            {% else %}
+                                <img src="{% static 'img/default-avatar.png' %}" alt="avatar" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                            {% endif %}
+                            <span class="fw-semibold text-secondary small">{{ user.username }}</span>
+                        </div>
+                        <span class="badge bg-secondary rounded-pill small" style="font-size: 0.8em;">{{ user.answers_count }} отв.</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted small">Пользователей нет</li>
+                {% endfor %}
+            </ul>
+        </div>
+</div>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-light border-top">
+        <div class="container text-center">
+            <span class="text-muted">© 2026 AskPupkin Inc. Все права защищены.</span>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
